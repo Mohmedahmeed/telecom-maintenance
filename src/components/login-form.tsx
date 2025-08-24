@@ -13,8 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation"; // CLIENT navigation
 
 export function LoginForm({
   className,
@@ -37,9 +37,13 @@ export function LoginForm({
         email,
         password,
       });
-      if (error) throw error;
-      // Update this route to redirect to an authenticated route. The user already has an active session.
+      if (error) {
+        setError(error.message);
+        return;
+      }
+      // Navigate client-side
       router.push("/");
+      router.refresh(); // similar to revalidatePath
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
