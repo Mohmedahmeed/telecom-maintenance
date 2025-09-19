@@ -22,43 +22,29 @@ import {
   SelectValue,
 } from "../ui/select";
 
-interface Equipment {
-  id: string;
-  name: string;
-  serial_number: string;
-  type: string;
-  brand?: string;
-  model?: string;
-  status: string;
-  site_id: string;
-  installation_date?: string;
-}
-
 interface Site {
   id: string;
   name: string;
   code: string;
 }
 
-interface EditEquipmentDialogProps {
-  equipment: Equipment;
+interface AddEquipmentDialogProps {
   sites: Site[];
   children: React.ReactNode;
 }
 
-export function EditEquipmentDialog({ equipment, sites, children }: EditEquipmentDialogProps) {
+export function AddEquipmentDialog({ sites, children }: AddEquipmentDialogProps) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: equipment.name,
-    serial_number: equipment.serial_number,
-    type: equipment.type,
-    brand: equipment.brand || "",
-    model: equipment.model || "",
-    status: equipment.status,
-    site_id: equipment.site_id,
-    installation_date: equipment.installation_date ? 
-      new Date(equipment.installation_date).toISOString().split('T')[0] : ""
+    name: "",
+    serial_number: "",
+    type: "",
+    brand: "",
+    model: "",
+    status: "operational",
+    site_id: "",
+    installation_date: ""
   });
   
   const router = useRouter();
@@ -71,19 +57,28 @@ export function EditEquipmentDialog({ equipment, sites, children }: EditEquipmen
     try {
       const { error } = await supabase
         .from('equipment')
-        .update({
+        .insert([{
           ...formData,
           installation_date: formData.installation_date || null
-        })
-        .eq('id', equipment.id);
+        }]);
         
       if (error) throw error;
       
       setOpen(false);
+      setFormData({
+        name: "",
+        serial_number: "",
+        type: "",
+        brand: "",
+        model: "",
+        status: "operational",
+        site_id: "",
+        installation_date: ""
+      });
       router.refresh();
     } catch (error) {
-      console.error('Error updating equipment:', error);
-      alert('Error updating equipment. Please try again.');
+      console.error('Error creating equipment:', error);
+      alert('Error creating equipment. Please check all fields and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -96,9 +91,9 @@ export function EditEquipmentDialog({ equipment, sites, children }: EditEquipmen
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Edit Equipment</DialogTitle>
+          <DialogTitle>Add New Equipment</DialogTitle>
           <DialogDescription>
-            Update equipment information. All fields marked with * are required.
+            Add new equipment to the network. All fields marked with * are required.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -109,6 +104,7 @@ export function EditEquipmentDialog({ equipment, sites, children }: EditEquipmen
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Main Antenna"
                 required
               />
             </div>
@@ -118,6 +114,7 @@ export function EditEquipmentDialog({ equipment, sites, children }: EditEquipmen
                 id="serial_number"
                 value={formData.serial_number}
                 onChange={(e) => setFormData(prev => ({ ...prev, serial_number: e.target.value }))}
+                placeholder="SN123456789"
                 required
               />
             </div>
@@ -129,9 +126,10 @@ export function EditEquipmentDialog({ equipment, sites, children }: EditEquipmen
               <Select
                 value={formData.type}
                 onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
+                required
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="antenna">Antenna</SelectItem>
@@ -168,9 +166,10 @@ export function EditEquipmentDialog({ equipment, sites, children }: EditEquipmen
             <Select
               value={formData.site_id}
               onValueChange={(value) => setFormData(prev => ({ ...prev, site_id: value }))}
+              required
             >
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select site" />
               </SelectTrigger>
               <SelectContent>
                 {sites.map((site) => (
@@ -189,6 +188,7 @@ export function EditEquipmentDialog({ equipment, sites, children }: EditEquipmen
                 id="brand"
                 value={formData.brand}
                 onChange={(e) => setFormData(prev => ({ ...prev, brand: e.target.value }))}
+                placeholder="Huawei"
               />
             </div>
             <div className="space-y-2">
@@ -197,6 +197,7 @@ export function EditEquipmentDialog({ equipment, sites, children }: EditEquipmen
                 id="model"
                 value={formData.model}
                 onChange={(e) => setFormData(prev => ({ ...prev, model: e.target.value }))}
+                placeholder="Model ABC123"
               />
             </div>
           </div>
@@ -216,7 +217,7 @@ export function EditEquipmentDialog({ equipment, sites, children }: EditEquipmen
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Updating..." : "Update Equipment"}
+              {isLoading ? "Creating..." : "Add Equipment"}
             </Button>
           </div>
         </form>

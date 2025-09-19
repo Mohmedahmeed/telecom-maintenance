@@ -43,8 +43,8 @@ export function EditInterventionDialog({ intervention, sites, equipment, users, 
     priority: intervention.priority,
     status: intervention.status,
     site_id: intervention.site_id,
-    equipment_id: intervention.equipment_id || "",
-    assigned_to: intervention.assigned_to || "",
+    equipment_id: intervention.equipment_id || "none",
+    assigned_to: intervention.assigned_to || "none",
     scheduled_date: intervention.scheduled_date ? 
       new Date(intervention.scheduled_date).toISOString().slice(0, 16) : "",
     estimated_duration: intervention.estimated_duration ? 
@@ -66,8 +66,8 @@ export function EditInterventionDialog({ intervention, sites, equipment, users, 
         .from('interventions')
         .update({
           ...formData,
-          equipment_id: formData.equipment_id || null,
-          assigned_to: formData.assigned_to || null,
+          equipment_id: formData.equipment_id === "none" ? null : formData.equipment_id,
+          assigned_to: formData.assigned_to === "none" ? null : formData.assigned_to,
           scheduled_date: formData.scheduled_date || null,
           estimated_duration: formData.estimated_duration ? 
             `PT${formData.estimated_duration}H` : null // Convert to ISO 8601 duration format
@@ -178,7 +178,7 @@ export function EditInterventionDialog({ intervention, sites, equipment, users, 
             <Select
               value={formData.site_id}
               onValueChange={(value) => {
-                setFormData(prev => ({ ...prev, site_id: value, equipment_id: "" }));
+                setFormData(prev => ({ ...prev, site_id: value, equipment_id: "none" }));
                 setSelectedSite(value);
               }}
             >
@@ -206,7 +206,7 @@ export function EditInterventionDialog({ intervention, sites, equipment, users, 
                   <SelectValue placeholder="No specific equipment" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No specific equipment</SelectItem>
+                  <SelectItem value="none">No specific equipment</SelectItem>
                   {filteredEquipment.map((eq) => (
                     <SelectItem key={eq.id} value={eq.id}>
                       {eq.name}
@@ -227,7 +227,7 @@ export function EditInterventionDialog({ intervention, sites, equipment, users, 
                 <SelectValue placeholder="Unassigned" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Unassigned</SelectItem>
+                <SelectItem value="none">Unassigned</SelectItem>
                 {users.map((user) => (
                   <SelectItem key={user.id} value={user.id}>
                     {user.full_name} ({user.role})

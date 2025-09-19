@@ -4,8 +4,8 @@ import { NextResponse } from "next/server";
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("sites_radio")
-    .select("*, antenna(*), transmissions(*)")
+    .from("sites")
+    .select("*, equipment(*)")
     .eq("id", params.id)
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 404 });
@@ -16,7 +16,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   const body = await req.json();
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("sites_radio")
+    .from("sites")
     .update(body)
     .eq("id", params.id)
     .select()
@@ -27,7 +27,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   const supabase = await createClient();
-  const { error } = await supabase.from("sites_radio").delete().eq("id", params.id);
+  const { error } = await supabase.from("sites").delete().eq("id", params.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ ok: true });
 }

@@ -6,7 +6,7 @@ import SitesTable from "@/components/SitesTable";
 export default async function SitesPage() {
   const supabase = await createClient();
   const { data: sites } = await supabase
-    .from("sites_radio")
+    .from("sites")
     .select("id,address,coordinates,type,created_at")
     .order("id", { ascending: false })
     .limit(500);

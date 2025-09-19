@@ -4,9 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET() {
   try {
     const supabase = await createClient();
-    // simple test: count sites_radio rows (RLS must allow SELECT)
+    // simple test: count sites rows (RLS must allow SELECT)
     const { data, error, count } = await supabase
-      .from("sites_radio")
+      .from("sites")
       .select("id", { count: "exact", head: true });
 
     if (error) {
