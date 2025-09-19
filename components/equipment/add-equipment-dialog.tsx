@@ -1,3 +1,4 @@
+// components/equipment/add-equipment-dialog.tsx
 "use client";
 
 import { useState } from "react";
